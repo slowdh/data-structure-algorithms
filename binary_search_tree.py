@@ -46,12 +46,10 @@ class BinarySearchTree:
 
     def delete(self, val):
         node_delete = self.search(val=val)
+        new_root = self._get_new_root_after_delete(node_delete=node_delete)
+        self._modify_parent_reference(root_before_delete=node_delete, root_after_delete=new_root)
         if self.root == node_delete:
-            self.root = self._get_new_root_after_delete(node_delete=node_delete)
-            self._modify_parent_reference(root_before_delete=node_delete, root_after_delete=self.root)
-        else:
-            new_root = self._get_new_root_after_delete(node_delete=node_delete)
-            self._modify_parent_reference(root_before_delete=node_delete, root_after_delete=new_root)
+            self.root = new_root
         return node_delete.val
 
     def _get_new_root_after_delete(self, node_delete):
