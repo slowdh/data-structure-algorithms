@@ -74,26 +74,6 @@ class BinarySearchTree:
         if root_after_delete is not None:
             root_after_delete.parent = node_parent
 
-    def _delete_under_sub_tree(self, node_delete):
-        node_parent = node_delete.parent
-        if node_delete.left is None and node_delete.right is None:
-            if node_parent.left == node_delete:
-                node_parent.left = None
-            else:
-                node_parent.right = None
-        elif node_delete.left is None or node_delete.right is None:
-            node_child = node_delete.left if node_delete.right is None else node_delete.right
-            if node_parent.left == node_delete:
-                node_parent.left = node_child
-                node_child.parent = node_parent
-            else:
-                node_parent.right = node_child
-                node_child.parent = node_parent
-        else:
-            node_max = self._get_maximum_node_under_sub_tree(root=node_delete.left)
-            node_delete.val = node_max.val
-            self._delete_under_sub_tree(node_delete=node_max)
-
     def inorder_traversal(self):
         if self.root is None:
             return []
