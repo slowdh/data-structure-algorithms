@@ -49,7 +49,7 @@ class RedBlackTree:
             node_parent.right = node_curr
 
     def _rotate_left(self, node):
-        # node.right becomes a new root
+        # node.right becomes a new root of a subtree
         node_child = node.right
         assert node_child is not None, 'Rotation not possible: Child node doesn\'t exist.'
         node.right = node_child.left
@@ -62,7 +62,7 @@ class RedBlackTree:
         return node_child
 
     def _rotate_right(self, node):
-        # node.left becomes a new root
+        # node.left becomes a new root of a subtree
         node_child = node.left
         assert node_child is not None, 'Rotation not possible: Child node doesn\'t exist.'
         node.left = node_child.right
