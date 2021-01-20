@@ -6,13 +6,16 @@ class TreeNode:
 class BinarySearchTree:
     def __init__(self):
         self.root = None
-
-    def insert(self, val):
-        node_insert = TreeNode(val=val)
-        if self.root is None:
-            self.root = node_insert
+    
+    def _search_under_sub_tree(self, val, root):
+        if root is None:
+            raise ValueError(f'Node with value ({val}) doesn\'t exist.')
+        if root.val == val:
+            return root
+        elif root.val < val:
+            return self._search_under_sub_tree(val=val, root=root.right)
         else:
-            self._insert_under_sub_tree(node_insert=node_insert, root=self.root)
+            return self._search_under_sub_tree(val=val, root=root.left)
 
     def _insert_under_sub_tree(self, node_insert, root):
         if root.val <= node_insert.val:
@@ -27,30 +30,6 @@ class BinarySearchTree:
                 node_insert.parent = root
             else:
                 self._insert_under_sub_tree(node_insert=node_insert, root=root.left)
-
-    def search(self, val):
-        if self.root is None:
-            raise ValueError(f'Node with value ({val}) doesn\'t exist.')
-        else:
-            return self._search_under_sub_tree(val, self.root)
-
-    def _search_under_sub_tree(self, val, root):
-        if root is None:
-            raise ValueError(f'Node with value ({val}) doesn\'t exist.')
-        if root.val == val:
-            return root
-        elif root.val < val:
-            return self._search_under_sub_tree(val=val, root=root.right)
-        else:
-            return self._search_under_sub_tree(val=val, root=root.left)
-
-    def delete(self, val):
-        node_delete = self.search(val=val)
-        new_root = self._get_new_root_after_delete(node_delete=node_delete)
-        self._modify_parent_reference(root_before_delete=node_delete, root_after_delete=new_root)
-        if self.root == node_delete:
-            self.root = new_root
-        return node_delete.val
 
     def _get_new_root_after_delete(self, node_delete):
         if node_delete.left is not None and node_delete.right is not None:
@@ -74,45 +53,21 @@ class BinarySearchTree:
         if root_after_delete is not None:
             root_after_delete.parent = node_parent
 
-    def inorder_traversal(self):
-        if self.root is None:
-            return []
-        else:
-            return self._inorder_traversal_under_sub_tree(root=self.root)
-
     def _inorder_traversal_under_sub_tree(self, root):
         if root is None:
             return []
         else:
             return self._inorder_traversal_under_sub_tree(root=root.left) + [root.val] + self._inorder_traversal_under_sub_tree(root=root.right)
 
-    def get_minimum_node(self):
-        if self.root is None:
-            raise ValueError(f'Node doesn\'t exist.')
-        else:
-            return self._get_minimum_node_under_sub_tree(root=self.root)
-
     def _get_minimum_node_under_sub_tree(self, root):
         if root.left is None:
             return root
         return self._get_minimum_node_under_sub_tree(root=root.left)
 
-    def get_maximum_node(self):
-        if self.root is None:
-            raise ValueError(f'Node doesn\'t exist.')
-        else:
-            return self._get_maximum_node_under_sub_tree(root=self.root)
-
     def _get_maximum_node_under_sub_tree(self, root):
         if root.right is None:
             return root
         return self._get_maximum_node_under_sub_tree(root=root.right)
-
-    def get_predecessor(self, val):
-        current_node = self.search(val=val)
-        if current_node.left is not None:
-            return self._get_maximum_node_under_sub_tree(root=current_node.left).val
-        return self._get_predecessor_under_sub_tree(val=val, current_node=current_node)
 
     def _get_predecessor_under_sub_tree(self, val, current_node):
         node_parent = current_node.parent
@@ -122,12 +77,6 @@ class BinarySearchTree:
             return node_parent.val
         return self._get_predecessor_under_sub_tree(val=val, current_node=node_parent)
 
-    def get_successor(self, val):
-        current_node = self.search(val=val)
-        if current_node.right is not None:
-            return self._get_minimum_node_under_sub_tree(root=current_node.right).val
-        return self._get_successor_under_sub_tree(val=val, current_node=current_node)
-
     def _get_successor_under_sub_tree(self, val, current_node):
         node_parent = current_node.parent
         if node_parent is None:
@@ -135,6 +84,57 @@ class BinarySearchTree:
         if node_parent.val > val:
             return node_parent.val
         return self._get_successor_under_sub_tree(val=val, current_node=node_parent)
+    
+    def search(self, val):
+        if self.root is None:
+            raise ValueError(f'Node with value ({val}) doesn\'t exist.')
+        else:
+            return self._search_under_sub_tree(val, self.root)
+    
+    def insert(self, val):
+        node_insert = TreeNode(val=val)
+        if self.root is None:
+            self.root = node_insert
+        else:
+            self._insert_under_sub_tree(node_insert=node_insert, root=self.root)
+    
+    def delete(self, val):
+        node_delete = self.search(val=val)
+        new_root = self._get_new_root_after_delete(node_delete=node_delete)
+        self._modify_parent_reference(root_before_delete=node_delete, root_after_delete=new_root)
+        if self.root == node_delete:
+            self.root = new_root
+        return node_delete.val
+            
+    def get_successor(self, val):
+        current_node = self.search(val=val)
+        if current_node.right is not None:
+            return self._get_minimum_node_under_sub_tree(root=current_node.right).val
+        return self._get_successor_under_sub_tree(val=val, current_node=current_node)
+    
+    def get_predecessor(self, val):
+        current_node = self.search(val=val)
+        if current_node.left is not None:
+            return self._get_maximum_node_under_sub_tree(root=current_node.left).val
+        return self._get_predecessor_under_sub_tree(val=val, current_node=current_node)
+    
+    def get_maximum_node(self):
+        if self.root is None:
+            raise ValueError(f'Node doesn\'t exist.')
+        else:
+            return self._get_maximum_node_under_sub_tree(root=self.root)
+    
+    def get_minimum_node(self):
+        if self.root is None:
+            raise ValueError(f'Node doesn\'t exist.')
+        else:
+            return self._get_minimum_node_under_sub_tree(root=self.root)
+    
+    def inorder_traversal(self):
+        if self.root is None:
+            return []
+        else:
+            return self._inorder_traversal_under_sub_tree(root=self.root)
 
 
 # tree = BinarySearchTree()
