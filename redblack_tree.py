@@ -125,10 +125,6 @@ class RedBlackTree:
                     assert node_child.color == 'red'
                     node_child.color = 'black'
 
-    def delete(self, val):
-        node_delete = self.search(val=val)
-        self._delete_helper(node_delete=node_delete)
-
     def _restore_rbt_property_after_deletion(self, node, node_parent):
         if node_parent is None:
             node.color = 'black'
@@ -214,6 +210,10 @@ class RedBlackTree:
             node_insert.color = 'black'
         else:
             self._insert_helper(node_insert=node_insert, root=self.root)
+    
+    def delete(self, val):
+        node_delete = self.search(val=val)
+        self._delete_helper(node_delete=node_delete)
 
     def inorder_traversal(self):
         if self.root is None:
