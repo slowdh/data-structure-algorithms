@@ -18,13 +18,18 @@ class DoublyLinkedList:
         raise ValueError(f'Object with value {val} doesn\'t exist!')
 
     def visit(self, idx):
-        node_curr = self.head
         if not (0 <= idx < self.size):
             raise ValueError('Index out of range!')
-        for _ in range(idx):
-            node_curr = node_curr.next
+        if idx < self.size // 2:
+            node_curr = self.head
+            for _ in range(idx):
+                node_curr = node_curr.next
+        else:
+            node_curr = self.tail
+            for _ in range(self.size - 1 - idx):
+                node_curr = node_curr.prev
         return node_curr
-
+    
     def insert_at(self, idx, val):
         if idx > self.size:
             raise ValueError('Index out of range!')
