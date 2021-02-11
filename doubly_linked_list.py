@@ -62,34 +62,28 @@ class DoublyLinkedList:
     def remove_at(self, idx):
         node_remove = self.visit(idx=idx)
         node_prev, node_next = node_remove.prev, node_remove.next
-        if node_prev is None and node_next is None:
-            self.head = self.tail = None
-        elif node_prev is None:
-            node_next.prev = None
-            self.head = node_next
-        elif node_next is None:
-            node_prev.next = None
-            self.tail = node_prev
-        else:
+        if node_prev is not None:
             node_prev.next = node_next
+        else:
+            self.head = node_next
+        if node_next is not None:
             node_next.prev = node_prev
+        else:
+            self.tail = node_prev
         self.size -= 1
         return node_remove.val
 
     def delete(self, val):
         node_delete = self.search(val=val)
         node_prev, node_next = node_delete.prev, node_delete.next
-        if node_prev is None and node_next is None:
-            self.head = self.tail = None
-        elif node_prev is None:
-            node_next.prev = None
-            self.head = node_next
-        elif node_next is None:
-            node_prev.next = None
-            self.tail = node_prev
-        else:
+        if node_prev is not None:
             node_prev.next = node_next
+        else:
+            self.head = node_next
+        if node_next is not None:
             node_next.prev = node_prev
+        else:
+            self.tail = node_prev
         self.size -= 1
         return node_delete.val
 
