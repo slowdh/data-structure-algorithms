@@ -8,8 +8,14 @@ class Heap:
     def __init__(self):
         self.heap = []
         self.size = 0
+        self.hash_table = {}
+
+    def _update_hash(self, val, idx_update):
+        self.hash_table[val] = idx_update
 
     def _swap_node(self, left_idx, right_idx):
+        self._update_hash(self.heap[left_idx].val, right_idx)
+        self._update_hash(self.heap[right_idx].val, left_idx)
         self.heap[left_idx], self.heap[right_idx] = self.heap[right_idx], self.heap[left_idx]
 
     def _bubble_up(self, current_idx):
@@ -34,14 +40,13 @@ class Heap:
             self._bubble_down(child_lower)
 
     def _search_idx(self, val):
-        # If you use Hash table along with Heap, Search operation could be done in O(1) time complexity.
-        for idx, node in enumerate(self.heap):
-            if node.val == val:
-                return idx
+        if val in self.hash_table:
+            return self.hash_table[val]
         return None
 
-    def insert(self, key, val=0):
+    def insert(self, key, val):
         node_insert = Node(key, val)
+        self.hash_table[val] = self.size - 1
         self.heap.append(node_insert)
         self.size += 1
         self._bubble_up(self.size - 1)
@@ -54,20 +59,21 @@ class Heap:
             node_extracted = self.heap.pop()
             self.size -= 1
             self._bubble_down(0)
+            self.hash_table.pop(node_extracted.val)
             return node_extracted
 
-    def update_key(self, val, new_len):
-        idx_update = self._search_idx(val)
-        assert idx_update is not None
+    def update_key(self, val, key_updated):
+        idx_current = self._search_idx(val)
+        assert idx_current is not None
 
-        original_len = self.heap[idx_update].key
-        self._swap_node(idx_update, self.size - 1)
+        key_original = self.heap[idx_current].key
+        self._swap_node(idx_current, self.size - 1)
         self.heap.pop()
         self.size -= 1
-        self._bubble_down(idx_update)
+        self._bubble_down(idx_current)
 
-        len_updated = min(original_len, new_len)
-        self.insert(len_updated, val)
+        key_updated = min(key_original, key_updated)
+        self.insert(key_updated, val)
 
     def print_current_status(self):
         print(f'Current Heap status : {[(i.key, i.val) for i in self.heap]}')
@@ -75,73 +81,55 @@ class Heap:
 
 class Graph:
     def __init__(self):
-        self.node_dict = {}
+        self.vertices = set()
+        self.graph_dict = {}
         self.shortest_path = {}
 
     def print_status(self):
-        print(f'Current weighted node dictionary status : {self.node_dict}')
+        print(f'Current weighted node dictionary status : {self.graph_dict}')
 
     def print_shortest_path(self):
         print(f'Dijkstra\'s shortest path : {self.shortest_path}')
 
     def convert_adjacency_list_to_dict(self, adjacency_list):
         for start, end, weight in adjacency_list:
-            if start not in self.node_dict:
-                self.node_dict[start] = [(end, weight)]
+            self.vertices.update((start, end))
+            if start not in self.graph_dict:
+                self.graph_dict[start] = [(end, weight)]
             else:
-                self.node_dict[start].append((end, weight))
-        return self.node_dict
+                self.graph_dict[start].append((end, weight))
 
-    def get_dijkstras_shortest_path(self, start_node, nodes):
+    def get_dijkstras_shortest_path(self, start_vertex):
         heap_arr = Heap()
-        for node in nodes:
-            if node != start_node:
-                heap_arr.insert(float('inf'), node)
+        for vertex in self.vertices:
+            if vertex != start_vertex:
+                heap_arr.insert(float('inf'), vertex)
             else:
-                heap_arr.insert(0, node)
+                heap_arr.insert(0, vertex)
 
         while heap_arr.size != 0:
-            node_extracted = heap_arr.extract_min()
-            current_shortest_len = node_extracted.key
-            self.shortest_path[node_extracted.val] = current_shortest_len
-            if node_extracted.val in self.node_dict:
-                for node_end, weight in self.node_dict[node_extracted.val]:
-                    new_len = current_shortest_len + weight
+            shortest_vertex = heap_arr.extract_min()
+            shortest_path_len = shortest_vertex.key
+            self.shortest_path[shortest_vertex.val] = shortest_path_len
+            if shortest_vertex.val in self.graph_dict:
+                for node_end, weight in self.graph_dict[shortest_vertex.val]:
+                    new_len = shortest_path_len + weight
                     heap_arr.update_key(node_end, new_len)
         return self.shortest_path
 
 
-# # Test case_graph
-# graph_with_weight = [( 'a' , 'f',  14),
-#         ( 'a' , 'c',   9),
-#         ( 'a' , 'b',   7),
-#         ( 'c' , 'd',  11),
-#         ( 'b' , 'c',  10),
-#         ( 'd' , 'e',   6),
-#         ( 'f' , 'e',   9)
-#         ]
+# Test case_graph
+graph_with_weight = [( 'a' , 'f',  14),
+        ( 'a' , 'c',   9),
+        ( 'a' , 'b',   7),
+        ( 'c' , 'd',  11),
+        ( 'b' , 'c',  10),
+        ( 'd' , 'e',   6),
+        ( 'f' , 'e',   9)
+        ]
 
-# # Heap structure test case
-# a = Heap()
-# a.insert(5)
-# a.insert(1)
-# a.insert(2)
-# a.insert(4)
-# a.insert(0)
-# a.print_current_status()
-# a.extract_min()
-# a.print_current_status()
-# a.extract_min()
-# a.print_current_status()
-# a.extract_min()
-# a.print_current_status()
-# a.extract_min()
-# a.print_current_status()
-# a.extract_min()
-# a.print_current_status()
-
-# # Shortest path alogorithm test case
-# graph = Graph()
-# graph.convert_adjacency_list_to_dict(graph_with_weight)
-# graph.get_dijkstras_shortest_path('a', 'abcdef')
-# graph.print_shortest_path()
+# Shortest path alogorithm test case
+graph = Graph()
+graph.convert_adjacency_list_to_dict(graph_with_weight)
+graph.get_dijkstras_shortest_path('a')
+graph.print_shortest_path()
