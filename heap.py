@@ -46,9 +46,9 @@ class Heap:
 
     def insert(self, key, val):
         node_insert = Node(key, val)
-        self.hash_table[val] = self.size - 1
         self.heap.append(node_insert)
         self.size += 1
+        self.hash_table[val] = self.size - 1
         self._bubble_up(self.size - 1)
 
     def extract_min(self):
